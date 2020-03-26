@@ -79,3 +79,8 @@ df$date <- mdy(df$date)
 
 
 
+```{r save}
+write.csv(df, "covid_global.csv")
+
+
+```
