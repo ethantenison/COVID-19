@@ -72,27 +72,10 @@ dfold <- bind_rows(X03_10_2020,X03_11_2020,X03_12_2020,X03_13_2020,X03_14_2020,X
 X03_22_2020$fips <- as.character(X03_22_2020$fips)
 
 df <- bind_rows(dfold, X03_22_2020, X03_23_2020, X03_24_2020, X03_25_2020)
-
-
-
-```
-
-
-
-```{r states}
-
-states <- ts %>% dplyr::filter(country_region == "US") %>% dplyr::filter(!str_detect(province_state, ",")) %>% dplyr::filter(province_state != c("Diamond Princess", "Grand Princess")) %>% dplyr::select(-country_region)
-
-states <- states[c(1:3, 52:65)]
-
-states <- melt(states, id.vars = c("province_state", "lat","long"))
-states$variable <- gsub( "x", "", states$variable)
-states$variable <- mdy(states$variable)
-states <- rename(states, Date = variable, Confirmed_Cases = value)
-states <- filter(states, province_state != "Virgin Islands")
-
-write.csv(states, "states.csv")
+df$date <- mdy(df$date)
 
 
 ```
+
+
 
