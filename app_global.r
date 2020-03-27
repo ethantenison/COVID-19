@@ -6,7 +6,7 @@ library(ggplot2)
 library(lubridate)
 
 
-df <- read.csv("states.csv")
+df <- read.csv("covid_global.csv")
 df$confirmed <- as.numeric(df$confirmed)
 df$date <- ymd(df$date)
 
@@ -29,12 +29,12 @@ ui <- bootstrapPage(
     left = "10%",
     right = "50%",
     bottom = "92.5%",
-    h1("COVID-19 Confirmed Cases"),
-    h3("(",textOutput("num_matching", inline = TRUE),"cases)")
+    h1("COVID-19 Confirmed Cases")#,
+    #h3("(",textOutput("num_matching", inline = TRUE),"cases)")
     ),
   absolutePanel(top = 10, right = 10,
                 sliderInput(inputId = "date", "Select a Date", min = as.Date("2020-03-10"), 
-                            max = as.Date("2020-03-26"), value = as.Date("2020-03-10"), 
+                            max = as.Date("2020-03-25"), value = as.Date("2020-03-10"), 
                             step = .1,
                             animate = animationOptions(interval = .1)
                 ),
@@ -105,7 +105,7 @@ server <- function(input, output, session) {
     }
   })
   
-  output$num_matching <-renderText({format(sum(data()$confirmed), big.mark = ",")})
+  #output$num_matching <-renderText({format(sum(data()$confirmed), big.mark = ",")})
   
 
 }

@@ -33,7 +33,7 @@ X03_22_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/03-22-20
 X03_23_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/03-23-2020.csv")
 X03_24_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/03-24-2020.csv")
 X03_25_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/03-25-2020.csv")
-
+X03_26_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/03-26-2020.csv")
 ```
 
 
@@ -55,6 +55,7 @@ X03_22_2020 <- X03_22_2020 %>% mutate(date = "03_22_2020")%>% dplyr::select(-c("
 X03_23_2020 <- X03_23_2020 %>% mutate(date = "03_23_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
 X03_24_2020 <- X03_24_2020 %>% mutate(date = "03_24_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
 X03_25_2020 <- X03_25_2020 %>% mutate(date = "03_25_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
+X03_26_2020 <- X03_26_2020 %>% mutate(date = "03_26_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
 
 
 
@@ -63,7 +64,7 @@ X03_25_2020 <- X03_25_2020 %>% mutate(date = "03_25_2020")%>% dplyr::select(-c("
 
 
 
-```{r new}
+```{r all data merge}
 
 dfold <- bind_rows(X03_10_2020,X03_11_2020,X03_12_2020,X03_13_2020,X03_14_2020,X03_15_2020,X03_16_2020,X03_17_2020,X03_18_2020,X03_19_2020,X03_20_2020,X03_21_2020)
 
@@ -71,7 +72,7 @@ dfold <- bind_rows(X03_10_2020,X03_11_2020,X03_12_2020,X03_13_2020,X03_14_2020,X
 
 X03_22_2020$fips <- as.character(X03_22_2020$fips)
 
-df <- bind_rows(dfold, X03_22_2020, X03_23_2020, X03_24_2020, X03_25_2020)
+df <- bind_rows(dfold, X03_22_2020, X03_23_2020, X03_24_2020, X03_25_2020, X03_26_2020)
 df$date <- mdy(df$date)
 
 
@@ -79,8 +80,46 @@ df$date <- mdy(df$date)
 
 
 
-```{r save}
+
+```{r save_global}
 write.csv(df, "covid_global.csv")
 
 
+```
+
+
+```{r states}
+states <- df %>% filter(country_region == "US") %>% filter(province_state != "Diamond Princess" | province_state != "Grand Princess" | province_state != "Wuhan Evacuee" | province_state != "Recovered")
+
+
+fix_coord <- filter(X03_19_2020, !is.na(province_state))
+
+for (i in 1:length(states$province_state)){
+  
+  for (j in 1:length(fix_coord$province_state)){
+    
+    if(states$province_state[i] == fix_coord$province_state[j]){
+      states$lat[i] <- fix_coord$lat[j]
+      states$long[i] <- fix_coord$long[j]
+    }
+  }
+}
+
+states <- dplyr::select(states, -c(combined_key, fips, admin2, country_region))
+states <- states %>% group_by(date, province_state,lat, long) %>% summarize(confirmed = sum(confirmed), deaths = sum(deaths), recovered = sum(recovered))
+
+
+```
+
+
+```{r morecleaning}
+
+states <- dplyr::select(states, -c(combined_key, fips, admin2, country_region))
+states <- states %>% group_by(date, province_state,lat, long) %>% summarize(confirmed = sum(confirmed), deaths = sum(deaths), recovered = sum(recovered))
+
+```
+
+```{r states_save}
+
+write.csv(states, "states.csv")
 ```
