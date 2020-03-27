@@ -4,7 +4,6 @@ library(RColorBrewer)
 library(viridis)
 library(ggplot2)
 library(lubridate)
-library(devtools)
 library(shinydashboard)
 library(V8)
 library(rintrojs)
@@ -13,8 +12,6 @@ library(dplyr)
 library(readr)
 library(tidyr)
 library(leaflet.extras)
-library(sf)
-library(htmltools)
 library(shinyWidgets)
 
 
@@ -22,7 +19,6 @@ df <- read.csv("states.csv")
 df$confirmed <- as.numeric(df$confirmed)
 df$date <- ymd(df$date)
 
-#dfsum <- df %>% group_by(Date) %>% summarize(Total_Cases = sum(confirmed))
 
 # ------------------------------- #
 # ------------------------------- #
@@ -78,35 +74,28 @@ ui <- bootstrapPage(
 
 server <- function(input, output, session) {
   
-  # Reactive expression for the data subsetted to what the user selected
+  # Reactive expression to subset based on the data
   data <- reactive({
     
     plot <- df %>% dplyr::filter(date %in% input$date)
     
   })
   
-  # This reactive expression represents the palette function,
-  # which changes as the user makes selections in UI.
+  
   colorpal <- reactive({
+    
     colorNumeric(palette = "plasma", domain = df$confirmed)
   })
   
   
   output$map <- renderLeaflet({
-    # Use leaflet() here, and only include aspects of the map that
-    # won't need to change dynamically (at least, not unless the
-    # entire map is being torn down and recreated).
     leaflet(data = df) %>% addTiles() %>%
       setView(lng = -93.85, lat = 37.45, zoom = 4)
   })
   
-  # Incremental changes to the map (in this case, replacing the
-  # circles when a new color is chosen) should be performed in
-  # an observer. Each independent set of things that can change
-  # should be managed in its own observer.
+  
   observe({
     pal <- colorpal()
-    
     leafletProxy("map", data = data()) %>%
       clearShapes() %>%
       addCircles(lng =  ~ long,lat =  ~ lat, radius = ~data()$confirmed*30, weight = 1, color = "#777777",
@@ -115,12 +104,10 @@ server <- function(input, output, session) {
       )
   })
   
-  # Use a separate observer to recreate the legend as needed.
+  
   observe({
     proxy <- leafletProxy("map", data = df)
     
-    # Remove any existing legend, and only if the legend is
-    # enabled, create a new one.
     proxy %>% clearControls()
     if (input$legend) {
       pal <- colorpal()
