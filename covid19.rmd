@@ -34,6 +34,7 @@ X03_23_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/03-23-20
 X03_24_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/03-24-2020.csv")
 X03_25_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/03-25-2020.csv")
 X03_26_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/03-26-2020.csv")
+X03_27_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/03-27-2020.csv")
 ```
 
 
@@ -56,6 +57,7 @@ X03_23_2020 <- X03_23_2020 %>% mutate(date = "03_23_2020")%>% dplyr::select(-c("
 X03_24_2020 <- X03_24_2020 %>% mutate(date = "03_24_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
 X03_25_2020 <- X03_25_2020 %>% mutate(date = "03_25_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
 X03_26_2020 <- X03_26_2020 %>% mutate(date = "03_26_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
+X03_27_2020 <- X03_27_2020 %>% mutate(date = "03_27_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
 
 
 
@@ -72,8 +74,9 @@ dfold <- bind_rows(X03_10_2020,X03_11_2020,X03_12_2020,X03_13_2020,X03_14_2020,X
 
 X03_22_2020$fips <- as.character(X03_22_2020$fips)
 
-df <- bind_rows(dfold, X03_22_2020, X03_23_2020, X03_24_2020, X03_25_2020, X03_26_2020)
+df <- bind_rows(dfold, X03_22_2020, X03_23_2020, X03_24_2020, X03_25_2020, X03_26_2020,X03_27_2020 )
 df$date <- mdy(df$date)
+#df <- df %>% arrange(date, date, desc(confirmed))
 
 
 ```
@@ -89,7 +92,8 @@ write.csv(df, "covid_global.csv")
 
 
 ```{r states}
-states <- df %>% filter(country_region == "US") %>% filter(province_state != "Diamond Princess" | province_state != "Grand Princess" | province_state != "Wuhan Evacuee" | province_state != "Recovered")
+states <- df %>% filter(country_region == "US") %>% filter(province_state != "Diamond Princess") %>% filter( province_state != "Grand Princess") %>% filter( province_state != "Wuhan Evacuee")%>% filter( province_state != "Recovered") %>% filter( province_state != "recovered")%>% filter( province_state != "US" )
+
 
 
 fix_coord <- filter(X03_19_2020, !is.na(province_state))
@@ -106,16 +110,20 @@ for (i in 1:length(states$province_state)){
 }
 
 states <- dplyr::select(states, -c(combined_key, fips, admin2, country_region))
-states <- states %>% group_by(date, province_state,lat, long) %>% summarize(confirmed = sum(confirmed), deaths = sum(deaths), recovered = sum(recovered))
+states <- states %>% group_by(date, province_state,lat, long) %>% summarize(confirmed = sum(confirmed),recovered = sum(recovered), deaths = sum(deaths))
+states <- mutate(states, death_rate= deaths/confirmed)
+states <- states %>% mutate_at("death_rate", round, digits = 3)
 
 
 ```
 
 
-```{r morecleaning}
 
-states <- dplyr::select(states, -c(combined_key, fips, admin2, country_region))
-states <- states %>% group_by(date, province_state,lat, long) %>% summarize(confirmed = sum(confirmed), deaths = sum(deaths), recovered = sum(recovered))
+```{r states_long}
+
+states <- gather(states, measure, value, confirmed:deaths, factor_key=TRUE)
+states<- states %>% arrange(date, date, desc(value))
+
 
 ```
 

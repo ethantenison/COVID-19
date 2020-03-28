@@ -16,7 +16,7 @@ library(shinyWidgets)
 
 
 df <- read.csv("states.csv")
-df$confirmed <- as.numeric(df$confirmed)
+df$value <- as.numeric(df$value)
 df$date <- ymd(df$date)
 
 
@@ -28,7 +28,7 @@ df$date <- ymd(df$date)
 # ------------------------------- #
 # ------------------------------- #
 # ------------------------------- #
-
+#washington state: 4.5%, New York 1.1%, 
 
 ui <- bootstrapPage(
   tags$style(type = "text/css", "html, body {width:100%;height:100%}"),
@@ -39,25 +39,31 @@ ui <- bootstrapPage(
   tags$head(tags$script(src = "www/js/wordwrap.js")),
   
   tags$style(type = "text/css", "html, body {width:100%;height:100%}"),
-  leafletOutput("map", width = "100%", height = "100%"),
-  absolutePanel(
-    top = "0%",
-    left = "10%",
-    right = "50%",
-    bottom = "92.5%",
-    h1("COVID-19 Confirmed Cases"),
-    h3("(",textOutput("num_matching", inline = TRUE),"cases)")
-  ),
-  absolutePanel(top = 10, right = 8,
-                sliderInput(inputId = "date", "Select a Date", min = as.Date("2020-03-10"), 
-                            max = as.Date("2020-03-26"), value = as.Date("2020-03-10"), 
-                            step = .1,
-                            animate = animationOptions(interval = .1)
-                ),
-                selectInput(inputId = "variable", label = "Select a Variable", 
-                            choices = c("confirmed", "deaths", "recovered"), multiple = FALSE),
-                
-                checkboxInput("legend", "Show legend", TRUE)  
+  fluidRow(
+    column(width= 9, 
+      leafletOutput("map", width = "100%", height = "100%"),
+      absolutePanel(
+        top = "0%",
+        left = "10%",
+        right = "50%",
+        bottom = "92.5%",
+        h1("COVID-19 Confirmed Cases"),
+        h3("(",textOutput("num_matching", inline = TRUE),"cases)")
+      ),
+      absolutePanel(top = 10, right = 8,
+                    sliderInput(inputId = "date", "Select a Date", min = as.Date("2020-03-10"), 
+                                max = as.Date("2020-03-27"), value = as.Date("2020-03-10"), 
+                                step = .1,
+                                animate = animationOptions(interval = .1)
+                    ),
+                    selectInput(inputId = "measure", label = "Select a Variable", 
+                                choices = c("confirmed", "deaths"), multiple = FALSE),
+                    
+                    checkboxInput("legend", "Show legend", TRUE) 
+      )
+      ),
+    column(width=3,
+           dataTableOutput("table"))
   )
 )
 
@@ -75,16 +81,27 @@ ui <- bootstrapPage(
 server <- function(input, output, session) {
   
   # Reactive expression to subset based on the data
+  
+  domain <- reactive({
+    
+    dom <- df %>% dplyr::filter(measure %in% input$measure)
+    
+  })
+  
+  datatable <- reactive({
+    plot <- df %>% filter(date %in% input$date) %>% filter(measure %in% input$measure) %>% dplyr::select(province_state, measure, value)
+  })
+  
   data <- reactive({
     
-    plot <- df %>% dplyr::filter(date %in% input$date)
+    plot <- df %>% dplyr::filter(date %in% input$date) %>% dplyr::filter(measure %in% input$measure)
     
   })
   
   
   colorpal <- reactive({
     
-    colorNumeric(palette = "plasma", domain = df$confirmed)
+    colorNumeric(palette = "plasma", domain = domain()$value)
   })
   
   
@@ -95,29 +112,47 @@ server <- function(input, output, session) {
   
   
   observe({
+    
     pal <- colorpal()
+    
+    if (unique(data()$measure) == "confirmed"){
     leafletProxy("map", data = data()) %>%
       clearShapes() %>%
-      addCircles(lng =  ~ long,lat =  ~ lat, radius = ~data()$confirmed*30, weight = 1, color = "#777777",
-                 fillColor = ~pal(data()$confirmed), fillOpacity = 0.6, popup = ~paste0(
-                   "<h5/><b>",data()$province_state,"</b><h5/>",sep = " ", data()$confirmed)
+      addCircles(lng =  ~ long,lat =  ~ lat, radius = ~data()$value*20, weight = 1, color = "#777777",
+                 fillColor = ~pal(data()$value), fillOpacity = 0.6, popup = ~paste0(
+                   "<h4/><b>",data()$province_state,"</b><h5/>",
+                   "<h5/>",data()$measure,": ", data()$value,
+                   "<h5/>","Death Rate: ", data()$death_rate)
       )
+  }
+  else if (unique(data()$measure) == "deaths"){
+    leafletProxy("map", data = data()) %>%
+      clearShapes() %>%
+      addCircles(lng =  ~ long,lat =  ~ lat, radius = ~data()$value*1000, weight = 1, color = "#777777",
+                 fillColor = ~pal(data()$value), fillOpacity = 0.6, popup = ~paste0(
+                   "<h5/><b>",data()$province_state,"</b><h5/>",
+                   "<h5/>",data()$measure,": ", data()$value,
+                   "<h5/>","Death Rate: ", data()$death_rate)
+      )
+  }
   })
   
   
   observe({
-    proxy <- leafletProxy("map", data = df)
+    proxy <- leafletProxy("map", data = domain())
     
     proxy %>% clearControls()
     if (input$legend) {
       pal <- colorpal()
       proxy %>% addLegend(position = "bottomright",
-                          pal = pal, values = ~confirmed
+                          pal = pal, values = ~value
       )
     }
   })
   
-  output$num_matching <-renderText({format(sum(data()$confirmed), big.mark = ",")})
+  output$num_matching <-renderText({format(sum(data()$value), big.mark = ",")})
+  
+  output$table <- renderDataTable(datatable())
   
   
 }
