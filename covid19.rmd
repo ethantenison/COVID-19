@@ -114,6 +114,7 @@ states <- dplyr::select(states, -c(combined_key, fips, admin2, country_region))
 states <- states %>% group_by(date, province_state,lat, long) %>% summarize(confirmed = sum(confirmed),recovered = sum(recovered), deaths = sum(deaths))
 states <- mutate(states, death_rate= deaths/confirmed)
 states <- states %>% mutate_at("death_rate", round, digits = 3) %>% rename(Deaths = deaths, Recovered = recovered, State = province_state)
+states <- states %>% mutate_at("c_PercentChange", round, digits = 3) %>% mutate_at("d_PercentChange", round, digits = 3)
 
 
 ```

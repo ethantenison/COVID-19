@@ -33,6 +33,7 @@ df$date <- ymd(df$date)
 #washington state: 4.5%, New York 1.1%, 
 
 ui <- bootstrapPage(
+  HTML('<meta name="viewport" content="width=1024">'),
   tags$style(type = "text/css", "html, body {width:100%;height:100%}"),
   tags$head(includeCSS("www/css/bootstrap.css")),
   tags$head(includeScript("www/js/google_analytics.js")),
@@ -43,7 +44,7 @@ ui <- bootstrapPage(
                   .js-irs-0 .irs-bar-edge,
                   .js-irs-0 .irs-bar,
                   .js-irs-0 .irs-grid-pol
-                  {background: #a65c85ff; border-color:#a65c85ff}")),
+                  {background: #d73027; border-color:#d73027}")),
   
   tags$style(type = "text/css", "html, body {width:100%;height:100%}"),
   fluidRow(
@@ -55,9 +56,9 @@ ui <- bootstrapPage(
         right = "50%",
         bottom = "92.5%",
         h1(id="big-heading",strong("COVID-19 Explorer")),
-        tags$style(HTML("#big-heading{color: #000000;}")),
+        tags$style(HTML("#big-heading{color: ##d73027;}")),
         h3(id="nums","(",textOutput("num_matching", inline = TRUE),")"),
-        tags$style(HTML("#nums{color: #000000;}"))
+        tags$style(HTML("#nums{color: ##d73027;}"))
       ),
       absolutePanel(
         top = "0%",
@@ -65,14 +66,14 @@ ui <- bootstrapPage(
         right = "10%",
         bottom = "92.5%",
           div(
-            sliderInput(inputId = "date", "Select a Date: ", min = as.Date("2020-03-10"), 
+            sliderInput(inputId = "date", h3(strong("Select a Date: ")), min = as.Date("2020-03-10"), 
                         max = as.Date("2020-03-27"), value = as.Date("2020-03-10"), 
                         step = .1,
                         animate = animationOptions(interval = .1)
             ),
-            selectInput(inputId = "measure", label = "Select a Variable: ", 
+            selectInput(inputId = "measure", label = h3(strong("Select a Variable: ")), 
                         choices = c("Confirmed Cases", "Deaths"), multiple = FALSE),
-            style="font-size:125%; color: black")
+            style="font-size:150%; color: #d73027")
       )
       ),
     column(width=3,
@@ -106,14 +107,14 @@ server <- function(input, output, session) {
     
     if (unique(data()$measure) == "Confirmed Cases"){
       plot <- df %>% filter(date %in% input$date) %>% filter(measure %in% input$measure) %>% 
-        dplyr::select(State, value, c_PercentChange ) %>%
-        rename("Confirmed Cases" = value, "Percent Change" = c_PercentChange)
+        dplyr::select(State, value, c_PercentChange, death_rate) %>%
+        rename("Confirmed Cases" = value, "% Change Confirmed" = c_PercentChange, "Death Rate" = death_rate)
     }
     
     else if (unique(data()$measure) == "Deaths"){
       plot <- df %>% filter(date %in% input$date) %>% filter(measure %in% input$measure) %>% 
-        dplyr::select(State, value, d_PercentChange ) %>%
-        rename("Deaths" = value, "Percent Change" = d_PercentChange)
+        dplyr::select(State, value, d_PercentChange, death_rate) %>%
+        rename("Deaths" = value, "% Change Deaths" = d_PercentChange, "Death Rate" = death_rate)
       
     }
   })
@@ -127,7 +128,7 @@ server <- function(input, output, session) {
   
   colorpal <- reactive({
     
-    colorNumeric(palette = "plasma", domain = domain()$value)
+    colorNumeric(palette = "RdYlBu", domain = domain()$value, reverse = TRUE)
   })
   
   
@@ -148,6 +149,7 @@ server <- function(input, output, session) {
                  fillColor = ~pal(data()$value), fillOpacity = 0.6, popup = ~paste0(
                    "<h4/><b>",data()$State,"</b><h5/>",
                    "<h5/>",data()$measure,": ", data()$value,
+                   "<h5/> Percentage Change in Confirmed Cases: ", data()$c_PercentChange,"%",
                    "<h5/>","Death Rate: ", data()$death_rate)
       )
   }
@@ -158,6 +160,7 @@ server <- function(input, output, session) {
                  fillColor = ~pal(data()$value), fillOpacity = 0.6, popup = ~paste0(
                    "<h5/><b>",data()$State,"</b><h5/>",
                    "<h5/>",data()$measure,": ", data()$value,
+                   "<h5/> Percentage Change in Deaths: ", data()$d_PercentChange,"%",
                    "<h5/>","Death Rate: ", data()$death_rate)
       )
   }
