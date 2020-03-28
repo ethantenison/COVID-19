@@ -16,6 +16,7 @@ library(lubridate)
 library(sf)
 library(raster)
 library(dplyr)
+library(DataCombine)
 
 X03_10_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/03-10-2020.csv")
 X03_11_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/03-11-2020.csv")
@@ -91,7 +92,7 @@ write.csv(df, "covid_global.csv")
 ```
 
 
-```{r states}
+```{r states, warning = FALSE, message= FALSE}
 states <- df %>% filter(country_region == "US") %>% filter(province_state != "Diamond Princess") %>% filter( province_state != "Grand Princess") %>% filter( province_state != "Wuhan Evacuee")%>% filter( province_state != "Recovered") %>% filter( province_state != "recovered")%>% filter( province_state != "US" )
 
 
@@ -112,17 +113,30 @@ for (i in 1:length(states$province_state)){
 states <- dplyr::select(states, -c(combined_key, fips, admin2, country_region))
 states <- states %>% group_by(date, province_state,lat, long) %>% summarize(confirmed = sum(confirmed),recovered = sum(recovered), deaths = sum(deaths))
 states <- mutate(states, death_rate= deaths/confirmed)
-states <- states %>% mutate_at("death_rate", round, digits = 3)
+states <- states %>% mutate_at("death_rate", round, digits = 3) %>% rename(Deaths = deaths, Recovered = recovered, State = province_state)
 
 
 ```
 
 
 
-```{r states_long}
+```{r states_long, warning = FALSE, message= FALSE}
+states<- states %>% arrange(State, date)
+states <- PercChange(states, Var = "confirmed", GroupVar = c("date", "State"), NewVar = "c_PercentChange", slideBy = -1, type = "percent"  )
+states <- PercChange(states, Var = "Deaths", GroupVar = c("date", "State"), NewVar = "d_PercentChange", slideBy = -1, type = "percent"  )
+states <- gather(states, measure, value, confirmed:Deaths, factor_key=TRUE)
+states<- states %>% arrange(date, desc(value))
+states$measure <- as.character(states$measure)
 
-states <- gather(states, measure, value, confirmed:deaths, factor_key=TRUE)
-states<- states %>% arrange(date, date, desc(value))
+for (i in 1:length(states$measure)){
+  
+  if(states$measure[i] == "confirmed"){
+    states$measure[i] <- "Confirmed Cases"
+  }
+ 
+  
+}
+
 
 
 ```
