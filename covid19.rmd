@@ -36,6 +36,8 @@ X03_24_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/03-24-20
 X03_25_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/03-25-2020.csv")
 X03_26_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/03-26-2020.csv")
 X03_27_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/03-27-2020.csv")
+X03_28_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/03-28-2020.csv")
+X03_29_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/03-29-2020.csv")
 ```
 
 
@@ -59,6 +61,8 @@ X03_24_2020 <- X03_24_2020 %>% mutate(date = "03_24_2020")%>% dplyr::select(-c("
 X03_25_2020 <- X03_25_2020 %>% mutate(date = "03_25_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
 X03_26_2020 <- X03_26_2020 %>% mutate(date = "03_26_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
 X03_27_2020 <- X03_27_2020 %>% mutate(date = "03_27_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
+X03_28_2020 <- X03_28_2020 %>% mutate(date = "03_28_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
+X03_29_2020 <- X03_29_2020 %>% mutate(date = "03_29_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
 
 
 
@@ -75,7 +79,7 @@ dfold <- bind_rows(X03_10_2020,X03_11_2020,X03_12_2020,X03_13_2020,X03_14_2020,X
 
 X03_22_2020$fips <- as.character(X03_22_2020$fips)
 
-df <- bind_rows(dfold, X03_22_2020, X03_23_2020, X03_24_2020, X03_25_2020, X03_26_2020,X03_27_2020 )
+df <- bind_rows(dfold, X03_22_2020, X03_23_2020, X03_24_2020, X03_25_2020, X03_26_2020,X03_27_2020,X03_28_2020, X03_29_2020   )
 df$date <- mdy(df$date)
 #df <- df %>% arrange(date, date, desc(confirmed))
 
@@ -113,8 +117,6 @@ for (i in 1:length(states$province_state)){
 states <- dplyr::select(states, -c(combined_key, fips, admin2, country_region))
 states <- states %>% group_by(date, province_state,lat, long) %>% summarize(confirmed = sum(confirmed),recovered = sum(recovered), deaths = sum(deaths))
 states <- mutate(states, death_rate= deaths/confirmed)
-states <- states %>% mutate_at("death_rate", round, digits = 3) %>% rename(Deaths = deaths, Recovered = recovered, State = province_state)
-states <- states %>% mutate_at("c_PercentChange", round, digits = 3) %>% mutate_at("d_PercentChange", round, digits = 3)
 
 
 ```
@@ -122,9 +124,11 @@ states <- states %>% mutate_at("c_PercentChange", round, digits = 3) %>% mutate_
 
 
 ```{r states_long, warning = FALSE, message= FALSE}
-states<- states %>% arrange(State, date)
-states <- PercChange(states, Var = "confirmed", GroupVar = c("date", "State"), NewVar = "c_PercentChange", slideBy = -1, type = "percent"  )
-states <- PercChange(states, Var = "Deaths", GroupVar = c("date", "State"), NewVar = "d_PercentChange", slideBy = -1, type = "percent"  )
+states<- states %>% arrange(province_state, date)
+states <- PercChange(states, Var = "confirmed", GroupVar = c("date", "province_state"), NewVar = "c_PercentChange", slideBy = -1, type = "percent"  )
+states <- PercChange(states, Var = "deaths", GroupVar = c("date", "province_state"), NewVar = "d_PercentChange", slideBy = -1, type = "percent"  )
+states <- states %>% mutate_at("death_rate", round, digits = 3) %>% rename(Deaths = deaths, Recovered = recovered, State = province_state)
+states <- states %>% mutate_at("c_PercentChange", round, digits = 3) %>% mutate_at("d_PercentChange", round, digits = 3)
 states <- gather(states, measure, value, confirmed:Deaths, factor_key=TRUE)
 states<- states %>% arrange(date, desc(value))
 states$measure <- as.character(states$measure)
