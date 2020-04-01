@@ -67,7 +67,7 @@ ui <- bootstrapPage(
         bottom = "92.5%",
           div(
             sliderInput(inputId = "date", h3(strong("Select a Date: ")), min = as.Date("2020-03-10"), 
-                        max = as.Date("2020-03-30"), value = as.Date("2020-03-10"), 
+                        max = as.Date("2020-03-31"), value = as.Date("2020-03-10"), 
                         step = .1,
                         animate = animationOptions(interval = .05)
             ),
