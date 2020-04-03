@@ -17,7 +17,7 @@ library(leaflet.providers)
 
 
 
-df <- read.csv("states.csv")
+df <- read.csv("minusNY.csv")
 df$value <- as.numeric(df$value)
 df$date <- ymd(df$date)
 
@@ -67,7 +67,7 @@ ui <- bootstrapPage(
         bottom = "92.5%",
           div(
             sliderInput(inputId = "date", h3(strong("Select a Date: ")), min = as.Date("2020-03-10"), 
-                        max = as.Date("2020-04-01"), value = as.Date("2020-03-10"), 
+                        max = as.Date("2020-04-02"), value = as.Date("2020-03-10"), 
                         step = .1,
                         animate = animationOptions(interval = .05)
             ),
@@ -145,7 +145,7 @@ server <- function(input, output, session) {
     if (unique(data()$measure) == "Confirmed Cases"){
     leafletProxy("map", data = data()) %>%
       clearShapes() %>%
-      addCircles(lng =  ~ long,lat =  ~ lat, radius = ~data()$value*20, weight = 1, color = "#777777",
+      addCircles(lng =  ~ long,lat =  ~ lat, radius = ~data()$value*15, weight = 1, color = "#777777",
                  fillColor = ~pal(data()$value), fillOpacity = 0.6, popup = ~paste0(
                    "<h4/><b>",data()$State,"</b><h5/>",
                    "<h5/>",data()$measure,": ", data()$value,
@@ -156,7 +156,7 @@ server <- function(input, output, session) {
   else if (unique(data()$measure) == "Deaths"){
     leafletProxy("map", data = data()) %>%
       clearShapes() %>%
-      addCircles(lng =  ~ long,lat =  ~ lat, radius = ~data()$value*1000, weight = 1, color = "#777777",
+      addCircles(lng =  ~ long,lat =  ~ lat, radius = ~data()$value*500, weight = 1, color = "#777777",
                  fillColor = ~pal(data()$value), fillOpacity = 0.6, popup = ~paste0(
                    "<h5/><b>",data()$State,"</b><h5/>",
                    "<h5/>",data()$measure,": ", data()$value,
