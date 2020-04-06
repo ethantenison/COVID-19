@@ -42,6 +42,9 @@ X03_30_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/03-30-20
 X03_31_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/03-31-2020.csv")
 X04_01_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/04-01-2020.csv")
 X04_02_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/04-02-2020.csv")
+X04_03_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/04-03-2020.csv")
+X04_04_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/04-04-2020.csv")
+X04_05_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/04-05-2020.csv")
 ```
 
 
@@ -71,7 +74,9 @@ X03_30_2020 <- X03_30_2020 %>% mutate(date = "03_30_2020")%>% dplyr::select(-c("
 X03_31_2020 <- X03_31_2020 %>% mutate(date = "03_31_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
 X04_01_2020 <- X04_01_2020 %>% mutate(date = "04_01_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
 X04_02_2020 <- X04_02_2020 %>% mutate(date = "04_02_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
-
+X04_03_2020 <- X04_03_2020 %>% mutate(date = "04_03_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
+X04_04_2020 <- X04_04_2020 %>% mutate(date = "04_04_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
+X04_05_2020 <- X04_05_2020 %>% mutate(date = "04_05_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
 
 ```
 
@@ -86,7 +91,7 @@ dfold <- bind_rows(X03_10_2020,X03_11_2020,X03_12_2020,X03_13_2020,X03_14_2020,X
 
 X03_22_2020$fips <- as.character(X03_22_2020$fips)
 
-df <- bind_rows(dfold, X03_22_2020, X03_23_2020, X03_24_2020, X03_25_2020, X03_26_2020,X03_27_2020,X03_28_2020, X03_29_2020, X03_30_2020,X03_31_2020,X04_01_2020, X04_02_2020    )
+df <- bind_rows(dfold, X03_22_2020, X03_23_2020, X03_24_2020, X03_25_2020, X03_26_2020,X03_27_2020,X03_28_2020, X03_29_2020, X03_30_2020,X03_31_2020,X04_01_2020, X04_02_2020, X04_03_2020, X04_04_2020, X04_05_2020)
 df$date <- mdy(df$date)
 #df <- df %>% arrange(date, date, desc(confirmed))
 
@@ -136,6 +141,8 @@ states <- PercChange(states, Var = "confirmed", GroupVar = c("date", "province_s
 states <- PercChange(states, Var = "deaths", GroupVar = c("date", "province_state"), NewVar = "d_PercentChange", slideBy = -1, type = "percent"  )
 states <- states %>% mutate_at("death_rate", round, digits = 3) %>% rename(Deaths = deaths, Recovered = recovered, State = province_state)
 states <- states %>% mutate_at("c_PercentChange", round, digits = 3) %>% mutate_at("d_PercentChange", round, digits = 3)
+
+
 states <- gather(states, measure, value, confirmed:Deaths, factor_key=TRUE)
 states<- states %>% arrange(date, desc(value))
 states$measure <- as.character(states$measure)
@@ -157,4 +164,32 @@ minusNY <- filter(states, State != "New York")
 
 write.csv(states, "states.csv")
 write.csv(minusNY, "minusNY.csv")
+```
+
+
+```{r linegraph}
+
+today <- filter(states, date == as.Date("2020-04-03"))
+bottom25<- filter(today, confirmed >= 5500 )
+bottom25 <- unique(bottom25$State)
+top25 <- filter(states, State %in% bottom25)
+top25 <- filter(top25, State != "New York")
+top25 <- filter(top25, State != "New Jersey")
+
+library(ggplot2)
+
+theme_set(theme_bw())
+ggplot(data=top25, aes(x=date, y=confirmed, group=State, color = State)) + geom_line(size =1) 
+
+
+```
+
+
+```{r percentagechange}
+
+pch <- states %>% group_by(date) %>% summarize(total_confirmed = sum(confirmed), total_deaths = sum(deaths)) %>% arrange(date)
+
+pch <- PercChange(pch, Var = "total_deaths", GroupVar = c("date"), NewVar = "c_PercentChange", slideBy = -1, type = "percent"  )
+
+
 ```
