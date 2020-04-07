@@ -45,6 +45,7 @@ X04_02_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/04-02-20
 X04_03_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/04-03-2020.csv")
 X04_04_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/04-04-2020.csv")
 X04_05_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/04-05-2020.csv")
+X04_06_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/04-06-2020.csv")
 ```
 
 
@@ -77,6 +78,8 @@ X04_02_2020 <- X04_02_2020 %>% mutate(date = "04_02_2020")%>% dplyr::select(-c("
 X04_03_2020 <- X04_03_2020 %>% mutate(date = "04_03_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
 X04_04_2020 <- X04_04_2020 %>% mutate(date = "04_04_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
 X04_05_2020 <- X04_05_2020 %>% mutate(date = "04_05_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
+X04_06_2020 <- X04_06_2020 %>% mutate(date = "04_06_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
+
 
 ```
 
@@ -91,7 +94,7 @@ dfold <- bind_rows(X03_10_2020,X03_11_2020,X03_12_2020,X03_13_2020,X03_14_2020,X
 
 X03_22_2020$fips <- as.character(X03_22_2020$fips)
 
-df <- bind_rows(dfold, X03_22_2020, X03_23_2020, X03_24_2020, X03_25_2020, X03_26_2020,X03_27_2020,X03_28_2020, X03_29_2020, X03_30_2020,X03_31_2020,X04_01_2020, X04_02_2020, X04_03_2020, X04_04_2020, X04_05_2020)
+df <- bind_rows(dfold, X03_22_2020, X03_23_2020, X03_24_2020, X03_25_2020, X03_26_2020,X03_27_2020,X03_28_2020, X03_29_2020, X03_30_2020,X03_31_2020,X04_01_2020, X04_02_2020, X04_03_2020, X04_04_2020, X04_05_2020, X04_06_2020)
 df$date <- mdy(df$date)
 #df <- df %>% arrange(date, date, desc(confirmed))
 

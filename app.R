@@ -17,10 +17,10 @@ library(leaflet.providers)
 
 
 
-df <- read.csv("states.csv")
+
 df$value <- as.numeric(df$value)
 df$date <- ymd(df$date)
-
+options(scipen=999)
 
 # ------------------------------- #
 # ------------------------------- #
@@ -58,6 +58,7 @@ ui <- bootstrapPage(
         bottom = "92.5%",
         h1(id="big-heading",strong("COVID-19 Explorer")),
         tags$style(HTML("#big-heading{color: ##d73027;}")),
+        h3(id='nums', textOutput("date2", inline = TRUE)),
         h3(id="nums","(",textOutput("num_matching", inline = TRUE),")"),
         tags$style(HTML("#nums{color: ##d73027;}"))
       ),
@@ -68,8 +69,8 @@ ui <- bootstrapPage(
                        choices = c("Confirmed Cases", "Deaths"), multiple = FALSE),
            div(
              sliderInput(inputId = "date", h3(strong("Select a Date: ")), min = as.Date("2020-03-10"), 
-                         max = as.Date("2020-04-05"), value = as.Date("2020-04-05"), 
-                         step = .1,
+                         max = as.Date("2020-04-06"), value = as.Date("2020-04-06"), 
+                         step = .01,
                          animate = animationOptions(interval = .01)
              ),
              style="font-size:150%; color: #d73027"),
@@ -204,6 +205,14 @@ server <- function(input, output, session) {
     proxy %>% clearControls() %>% addLegend(position = "bottomright",
                           pal = pal, values = ~value, title = unique(data()$measure))
       
+    
+  })
+  
+  
+  output$date2 <-renderText({
+    
+    paste0(format(as.Date(unique(data()$date))))
+    
     
   })
   
