@@ -5,6 +5,6 @@ account: ethan-tenison
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2011074
-bundleId: 2980914
+bundleId: 2981479
 url: https://ethan-tenison.shinyapps.io/covid-19/
-when: 1586267020.42958
+when: 1586273865.46223

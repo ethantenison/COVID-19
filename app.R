@@ -1,3 +1,16 @@
+
+# ------------------------------- #
+# ------------------------------- #
+# ------------------------------- #
+# ------------SECTION:----------- #
+# -----------Libraries----------- #
+# ------------------------------- #
+# ------------------------------- #
+# ------------------------------- #
+
+
+
+
 library(shiny)
 library(leaflet)
 library(RColorBrewer)
@@ -18,6 +31,25 @@ library(leaflet.providers)
 
 
 
+
+
+
+
+# ------------------------------- #
+# ------------------------------- #
+# ------------------------------- #
+# ------------SECTION:----------- #
+# ----Reference Data & Styles---- #
+# ------------------------------- #
+# ------------------------------- #
+# ------------------------------- #
+
+
+df <- read_csv("states.csv")
+
+
+
+
 df$value <- as.numeric(df$value)
 df$date <- ymd(df$date)
 options(scipen=999)
@@ -30,7 +62,7 @@ options(scipen=999)
 # ------------------------------- #
 # ------------------------------- #
 # ------------------------------- #
-#washington state: 4.5%, New York 1.1%, 
+
 
 ui <- bootstrapPage(
   HTML('<meta name="viewport" content="width=1024">'),
@@ -223,9 +255,7 @@ server <- function(input, output, session) {
     
     })
   
-  # output$tabletitle <- renderText({ 
-  #   paste0("<h3><b> Measure: ", input$measure,"</b>" )
-  # })
+ 
   
   output$table <- renderDataTable(datatable2(), options = list(searching = FALSE))
   
