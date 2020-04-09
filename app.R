@@ -101,7 +101,7 @@ ui <- bootstrapPage(
                        choices = c("Confirmed Cases", "Deaths"), multiple = FALSE),
            div(
              sliderInput(inputId = "date", h3(strong("Select a Date: ")), min = as.Date("2020-03-10"), 
-                         max = as.Date("2020-04-06"), value = as.Date("2020-04-06"), 
+                         max = as.Date("2020-04-08"), value = as.Date("2020-04-08"), 
                          step = .01,
                          animate = animationOptions(interval = .01)
              ),
@@ -174,11 +174,13 @@ server <- function(input, output, session) {
   
   output$linegraph <- renderPlot({
     
-    theme_set(theme_bw())
+    theme_set(theme_dark())
     ggplot(data = data_line(), aes(x=data_line()$date, y=data_line()$value, group = data_line()$State,color = data_line()$State)) +
-      geom_line(size = 1) + labs(color = "States above the mean") +
+      geom_line(size = 1) +
+      labs(color = "States above the mean") +
       theme( panel.grid.minor = element_blank(),
-             panel.background = element_blank(), axis.line = element_line(colour = "black"),
+             legend.key = element_rect(fill = "white"),
+             panel.background = element_blank(),
              text=element_text(face = "bold", size=12),
              plot.title = element_text(hjust = 0.5),
              axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
