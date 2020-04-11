@@ -27,6 +27,7 @@ library(tidyr)
 library(leaflet.extras)
 library(shinyWidgets)
 library(leaflet.providers)
+library(DT)
 
 
 
@@ -65,6 +66,11 @@ options(scipen=999)
 
 
 ui <- bootstrapPage(
+  setBackgroundColor(
+    color = c("#191919", "#191919"),
+    gradient = "linear",
+    direction = "bottom"
+  ),
   HTML('<meta name="viewport" content="width=1024">'),
   tags$style(type = "text/css", "html, body {width:100%;height:100%}"),
   tags$head(includeCSS("www/css/bootstrap.css")),
@@ -81,7 +87,7 @@ ui <- bootstrapPage(
   tags$style(type = "text/css", "html, body {width:100%;height:100%}"),
   fluidRow(
     column(width= 9, 
-      div(id = "BoxMap",leafletOutput("map", height = 800
+      div(id = "BoxMap",leafletOutput("map", height = 1077
                                       )),
       absolutePanel(
         top = "0%",
@@ -93,19 +99,19 @@ ui <- bootstrapPage(
         h3(id='nums', textOutput("date2", inline = TRUE)),
         h3(id="nums","(",textOutput("num_matching", inline = TRUE),")"),
         tags$style(HTML("#nums{color: ##d73027;}"))
+      )
+      #plotOutput("linegraph", height = 400)
       ),
-      plotOutput("linegraph", height = 400)
-      ),
-    column(width=3,
+    column(width=3,style = "background-color:#191919;",
            selectInput(inputId = "measure", label = h3(strong("Select a Variable: ")), 
                        choices = c("Confirmed Cases", "Deaths"), multiple = FALSE),
            div(
              sliderInput(inputId = "date", h3(strong("Select a Date: ")), min = as.Date("2020-03-10"), 
-                         max = as.Date("2020-04-08"), value = as.Date("2020-04-08"), 
+                         max = as.Date("2020-04-10"), value = as.Date("2020-04-10"), 
                          step = .01,
                          animate = animationOptions(interval = .01)
              ),
-             style="font-size:150%; color: #d73027"),
+             style="font-size:150%; color: #d73027;"),
           # htmlOutput("tabletitle"),
            dataTableOutput("table"))
   )
@@ -259,7 +265,12 @@ server <- function(input, output, session) {
   
  
   
-  output$table <- renderDataTable(datatable2(), options = list(searching = FALSE))
+  output$table <- renderDataTable(
+    
+    datatable(datatable2(), options = list(searching = FALSE, pageLength = 20))
+    
+    
+    )
   
   
 }
