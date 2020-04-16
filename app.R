@@ -216,7 +216,7 @@ server <- function(input, output, session) {
     if (unique(data()$measure) == "Confirmed Cases"){
     leafletProxy("map", data = data()) %>%
       clearShapes() %>%
-      addCircles(lng =  ~ long,lat =  ~ lat, radius = ~data()$value*10, weight = 1, color = "#777777",
+      addCircles(lng =  ~ long,lat =  ~ lat, radius = ~data()$value*5, weight = 1, color = "#777777",
                  fillColor = ~pal(data()$value), fillOpacity = 0.6, popup = ~paste0(
                    "<h4/><b>",data()$State,"</b><h5/>",
                    "<h5/>",data()$measure,": ", data()$value,
@@ -227,7 +227,7 @@ server <- function(input, output, session) {
     else if (unique(data()$measure) == "Deaths"){
       leafletProxy("map", data = data()) %>%
         clearShapes() %>%
-        addCircles(lng =  ~ long,lat =  ~ lat, radius = ~data()$value*300, weight = 1, color = "#777777",
+        addCircles(lng =  ~ long,lat =  ~ lat, radius = ~data()$value*100, weight = 1, color = "#777777",
                    fillColor = ~pal(data()$value), fillOpacity = 0.6, popup = ~paste0(
                      "<h5/><b>",data()$State,"</b><h5/>",
                      "<h5/>",data()$measure,": ", data()$value,
