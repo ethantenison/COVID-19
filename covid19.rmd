@@ -53,6 +53,11 @@ X04_07_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/04-07-20
 X04_08_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/04-08-2020.csv")
 X04_09_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/04-09-2020.csv")
 X04_10_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/04-10-2020.csv")
+X04_11_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/04-11-2020.csv")
+X04_12_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/04-12-2020.csv")
+X04_13_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/04-13-2020.csv")
+X04_14_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/04-14-2020.csv")
+X04_15_2020 <- read_csv("csse_covid_19_data/csse_covid_19_daily_reports/04-15-2020.csv")
 ```
 
 
@@ -90,6 +95,11 @@ X04_07_2020 <- X04_07_2020 %>% mutate(date = "04_07_2020")%>% dplyr::select(-c("
 X04_08_2020 <- X04_08_2020 %>% mutate(date = "04_08_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
 X04_09_2020 <- X04_09_2020 %>% mutate(date = "04_09_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
 X04_10_2020 <- X04_10_2020 %>% mutate(date = "04_10_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
+X04_11_2020 <- X04_11_2020 %>% mutate(date = "04_11_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
+X04_12_2020 <- X04_12_2020 %>% mutate(date = "04_12_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
+X04_13_2020 <- X04_13_2020 %>% mutate(date = "04_13_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
+X04_14_2020 <- X04_14_2020 %>% mutate(date = "04_14_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
+X04_15_2020 <- X04_15_2020 %>% mutate(date = "04_15_2020")%>% dplyr::select(-c("Last_Update"))%>% clean_names()
 
 
 ```
@@ -104,8 +114,11 @@ dfold <- bind_rows(X03_10_2020,X03_11_2020,X03_12_2020,X03_13_2020,X03_14_2020,X
 
 
 X03_22_2020$fips <- as.character(X03_22_2020$fips)
+X04_13_2020$fips <- as.character(X04_13_2020$fips)
+X04_14_2020$fips <- as.character(X04_14_2020$fips)
+X04_15_2020$fips <- as.character(X04_15_2020$fips)
 
-df <- bind_rows(dfold, X03_22_2020, X03_23_2020, X03_24_2020, X03_25_2020, X03_26_2020,X03_27_2020,X03_28_2020, X03_29_2020, X03_30_2020,X03_31_2020,X04_01_2020, X04_02_2020, X04_03_2020, X04_04_2020, X04_05_2020, X04_06_2020, X04_07_2020, X04_08_2020, X04_09_2020, X04_10_2020)
+df <- bind_rows(dfold, X03_22_2020, X03_23_2020, X03_24_2020, X03_25_2020, X03_26_2020,X03_27_2020,X03_28_2020, X03_29_2020, X03_30_2020,X03_31_2020,X04_01_2020, X04_02_2020, X04_03_2020, X04_04_2020, X04_05_2020, X04_06_2020, X04_07_2020, X04_08_2020, X04_09_2020, X04_10_2020, X04_11_2020,X04_12_2020, X04_13_2020, X04_14_2020, X04_15_2020 )
 df$date <- mdy(df$date)
 #df <- df %>% arrange(date, date, desc(confirmed))
 
@@ -176,8 +189,8 @@ minusNY <- filter(states, State != "New York")
 
 ```{r states_save}
 
-write.csv(states, "states.csv")
-write.csv(minusNY, "minusNY.csv")
+write.csv(states, "cleaned_data/states.csv")
+write.csv(minusNY, "cleaned_data/minusNY.csv")
 ```
 
 

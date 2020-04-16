@@ -46,7 +46,7 @@ library(DT)
 # ------------------------------- #
 
 
-df <- read_csv("states.csv")
+df <- read_csv("cleaned_data/states.csv")
 
 
 
@@ -102,12 +102,12 @@ ui <- bootstrapPage(
       )
       #plotOutput("linegraph", height = 400)
       ),
-    column(width=3,style = "background-color:#191919;",
+    column(width=3,style = "background-color:#ffffff;",
            selectInput(inputId = "measure", label = h3(strong("Select a Variable: ")), 
                        choices = c("Confirmed Cases", "Deaths"), multiple = FALSE),
            div(
              sliderInput(inputId = "date", h3(strong("Select a Date: ")), min = as.Date("2020-03-10"), 
-                         max = as.Date("2020-04-10"), value = as.Date("2020-04-10"), 
+                         max = as.Date("2020-04-15"), value = as.Date("2020-04-15"), 
                          step = .01,
                          animate = animationOptions(interval = .01)
              ),
